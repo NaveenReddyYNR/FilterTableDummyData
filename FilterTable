@@ -1,0 +1,323 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import {
+  IconButton,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TablePagination,
+  Tooltip,
+  TextField,
+  Box,
+} from '@mui/material';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import SortIcon from '@mui/icons-material/Sort';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import EditIcon from '@mui/icons-material/Edit';
+import Loader from '../../components/loader/Loader';
+
+const dummyData = [
+  {
+    PCNumber: 'PC00001',
+    PlayerCounterName: 'Virat Kohli',
+    PCSymbol: 'VKO',
+    Role: 'Batsman',
+    RoleLogo: 'https://www.vecteezy.com/free-vector/cricket-bat',
+    Tournament: 'IPL 2023',
+    Team: 'RCB',
+    TotalSupply: 1000,
+    Status: 'Minted',
+    SmartContractAddress: '0xd9145C**',
+    FormCompletion: '20',
+    Game: 'cricket',
+  },
+  {
+    PCNumber: 'PC00002',
+    PlayerCounterName: 'MS Dhoni',
+    PCSymbol: 'MSD',
+    Role: 'Batsman',
+    RoleLogo: 'https://www.vecteezy.com/free-vector/cricket-bat',
+    Tournament: 'IPL 2023',
+    Team: 'CSK',
+    TotalSupply: 1000,
+    Status: 'Minted',
+    Game: 'cricket',
+    SmartContractAddress: '0xd9145C**',
+  },
+  {
+    PCNumber: 'PC00003',
+    PlayerCounterName: 'Rohit Sharma',
+    PCSymbol: 'RSH',
+    Role: 'Batsman',
+    RoleLogo: 'https://www.vecteezy.com/free-vector/cricket-bat',
+    Tournament: 'IPL 2023',
+    Team: 'MI',
+    TotalSupply: 1000,
+    Status: 'Minted',
+    Game: 'cricket',
+    SmartContractAddress: '0xd9145C**',
+  },
+  {
+    PCNumber: 'PC00004',
+    PlayerCounterName: 'Ravindra Jadeja',
+    PCSymbol: 'RJA',
+    Role: 'AllRounder',
+    RoleLogo: 'https://www.vectorstock.com/royalty-free-vector/cricket-bat-and-ball-vector-1645967',
+    Tournament: 'IPL 2023',
+    Team: 'CSK',
+    TotalSupply: 1000,
+    Status: 'Minted',
+    Game: 'cricket',
+    SmartContractAddress: '0xd9145C**',
+  },
+  {
+    PCNumber: 'PC00005',
+    PlayerCounterName: 'Shivam Dube',
+    PCSymbol: 'SDU',
+    RoleLogo: 'https://www.vectorstock.com/royalty-free-vector/cricket-bat-and-ball-vector-1645967',
+    Role: 'AllRounder',
+    Tournament: 'IPL 2023',
+    Team: 'CSK',
+    TotalSupply: 1000,
+    Status: 'Minted',
+    Game: 'cricket',
+    SmartContractAddress: '0xd9145C**',
+  },
+  {
+    PCNumber: 'PC00006',
+    PlayerCounterName: 'Kuldeep Yadav',
+    PCSymbol: 'KYA',
+    Role: 'Bowler',
+    RoleLogo: 'https://www.vecteezy.com/free-vector/cricket-ball',
+    Tournament: 'IPL 2023',
+    Team: 'CSK',
+    TotalSupply: 1000,
+    Status: 'Minted',
+    Game: 'football',
+    SmartContractAddress: '0xd9145C**',
+  },
+  {
+    PCNumber: 'PC00007',
+    PlayerCounterName: 'Hardik Pandya',
+    PCSymbol: 'HPA',
+    Game: 'cricket',
+    Status: 'WIP',
+  },
+  {
+    PCNumber: 'PC00008',
+    PlayerCounterName: 'KL Rahul',
+    PCSymbol: 'KLR',
+    Game: 'football',
+    Status: 'WIP',
+  },
+];
+export default function Home() {
+  const [page, setPage] = useState(0);
+  const [newData, setNewData] = useState(dummyData);
+  const [rowsPerPage, setRowsPerPage] = useState(1050100);
+  const [isLoading, setLoading] = useState(false);
+  const [game, setGame] = useState('');
+  const [year, setYear] = useState('');
+  const [team, setTeam] = useState('');
+
+  const handleGame = (event) => {
+    setGame(() => event.target.value);
+  };
+  const handleTeam = (event) => {
+    setTeam(() => event.target.value);
+  };
+  const handleYear = (event) => {
+    setYear(event.target.value);
+  };
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
+  const cardNumber = (para) => {
+    console.log('para', para);
+    let newString = '';
+    if (para) {
+      for (let i = 0; i < para.length; i += 1) {
+        if (i < 6) {
+          newString += para[i];
+        } else {
+          newString += '*';
+        }
+      }
+      return newString;
+    }
+  };
+
+  return (
+    <>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <Paper elevation={5}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ display: 'flex', alignItems: 'center' }}>
+              <ChevronRightIcon /> Player Counter
+            </span>
+            <Box align="right" style={{ display: 'flex', marginLeft: '12%' }}>
+              <SortIcon style={{ marginTop: '6%' }} />
+              <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                <InputLabel id="demo-simple-select-standard-label">Game</InputLabel>
+                <Select value={game} onChange={handleGame} label="Game">
+                  <MenuItem value="">
+                    <em>None</em>
+                  </MenuItem>
+                  <MenuItem value="cricket">Cricket</MenuItem>
+                  <MenuItem value="football">FootBall</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                <InputLabel id="demo-simple-select-standard-label">Team</InputLabel>
+                <Select value={team} onChange={handleTeam} label="Team">
+                  <MenuItem value="">
+                    <em>None</em>
+                  </MenuItem>
+                  <MenuItem value="CSK">CSK</MenuItem>
+                  <MenuItem value="RCB">RCB</MenuItem>
+                  <MenuItem value="RJA">RJA</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                <InputLabel id="demo-simple-select-standard-label">Year</InputLabel>
+                <Select value={year} onChange={handleYear} label="Year">
+                  <MenuItem value="">
+                    <em>None</em>
+                  </MenuItem>
+                  <MenuItem value={2022}>2022</MenuItem>
+                  <MenuItem value={2021}>2021</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            <Button variant="contained" color="primary" align="right" onClick={() => console.log('Updated')}>
+              Create New Player counter
+            </Button>
+          </div>
+          <TableContainer>
+            <Table stickyHeader aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell component="th" scope="row">
+                    PC Number
+                  </TableCell>
+                  <TableCell align="right">Player Counter Name</TableCell>
+                  <TableCell align="right">PC Symbol</TableCell>
+                  <TableCell align="right">Role</TableCell>
+                  <TableCell align="right">Tournament</TableCell>
+                  <TableCell align="right">Team</TableCell>
+                  <TableCell align="right">Total Supply</TableCell>
+                  <TableCell align="right">Status</TableCell>
+                  <TableCell align="right">Smart Contract Address</TableCell>
+                  <TableCell align="right"> Action </TableCell>
+                </TableRow>
+              </TableHead>
+              {!newData || newData.length === 0 ? (
+                <caption style={{ textAlign: 'center' }}>Sorry! No data available</caption>
+              ) : (
+                <TableBody>
+                  {newData
+                    .filter((player) => {
+                      if (game && team) {
+                        return player?.Game?.includes(game) && player?.Team?.includes(team);
+                      }
+                      if (game) {
+                        return player?.Game?.includes(game);
+                      }
+                      if (team) {
+                        return player?.Team?.includes(team);
+                      }
+                      return player;
+                    })
+                    .map((row) => (
+                      <TableRow key={row?.PCNumber}>
+                        <TableCell>{row?.PCNumber}</TableCell>
+                        <TableCell>{row?.PlayerCounterName}</TableCell>
+                        <TableCell>{row?.PCSymbol}</TableCell>
+                        <TableCell style={{ display: 'flex' }}>
+                          <>
+                            <img src={row?.RoleLogo} alt="" />
+                            {row?.Role}
+                          </>
+                        </TableCell>
+                        <TableCell>{row?.Tournament}</TableCell>
+                        <TableCell>{row?.Team}</TableCell>
+                        <TableCell>{row?.TotalSupply}</TableCell>
+                        <TableCell>
+                          <>
+                            <div>{row?.Status}</div>
+                            {row?.Status === 'WIP' ? (
+                              <div
+                                style={{
+                                  border: '1px solid black',
+                                  height: '10px',
+                                  borderRadius: '5px',
+                                }}
+                              />
+                            ) : (
+                              <></>
+                            )}
+                          </>
+                        </TableCell>
+                        <TableCell>{cardNumber(row?.SmartContractAddress)}</TableCell>
+
+                        {row?.Status === 'WIP' ? (
+                          <TableCell align="right" style={{ display: 'flex' }}>
+                            <Tooltip title="Delete">
+                              <IconButton style={{ cursor: 'pointer' }} onClick={() => console.log('Updated')}>
+                                <DeleteOutlineIcon color="error" fontSize="small" style={{ cursor: 'pointer' }} />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Edit">
+                              <IconButton style={{ cursor: 'pointer' }} onClick={() => console.log('Updated')}>
+                                <EditIcon color="primary" fontSize="small" style={{ cursor: 'pointer' }} />
+                              </IconButton>
+                            </Tooltip>
+                          </TableCell>
+                        ) : (
+                          <></>
+                        )}
+                      </TableRow>
+                    ))}
+                </TableBody>
+              )}
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[1050100, 2100200, 3150300]}
+            component="div"
+            count={newData?.length || 0}
+            rowsPerPage={rowsPerPage}
+            page={Number(page)}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            sx={{
+              '.MuiTablePagination-displayedRows': {
+                marginBottom: 0,
+              },
+              '.MuiTablePagination-selectLabel': {
+                marginBottom: 0,
+              },
+            }}
+          />
+        </Paper>
+      )}
+    </>
+  );
+}
