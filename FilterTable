@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation, useParams, Navigate } from 'react-router-dom';
 import {
   IconButton,
   Button,
@@ -13,6 +13,7 @@ import {
   TablePagination,
   Tooltip,
   TextField,
+  Typography,
   Box,
 } from '@mui/material';
 import InputLabel from '@mui/material/InputLabel';
@@ -29,7 +30,7 @@ const dummyData = [
   {
     PCNumber: 'PC00001',
     PlayerCounterName: 'Virat Kohli',
-    PCSymbol: 'VKO',
+    PcCode: 'T1-VKC',
     Role: 'Batsman',
     RoleLogo: 'https://www.vecteezy.com/free-vector/cricket-bat',
     Tournament: 'IPL 2023',
@@ -43,7 +44,7 @@ const dummyData = [
   {
     PCNumber: 'PC00002',
     PlayerCounterName: 'MS Dhoni',
-    PCSymbol: 'MSD',
+    PcCode: 'T1-MDC',
     Role: 'Batsman',
     RoleLogo: 'https://www.vecteezy.com/free-vector/cricket-bat',
     Tournament: 'IPL 2023',
@@ -56,7 +57,7 @@ const dummyData = [
   {
     PCNumber: 'PC00003',
     PlayerCounterName: 'Rohit Sharma',
-    PCSymbol: 'RSH',
+    PcCode: 'T1-RSC',
     Role: 'Batsman',
     RoleLogo: 'https://www.vecteezy.com/free-vector/cricket-bat',
     Tournament: 'IPL 2023',
@@ -69,7 +70,7 @@ const dummyData = [
   {
     PCNumber: 'PC00004',
     PlayerCounterName: 'Ravindra Jadeja',
-    PCSymbol: 'RJA',
+    PcCode: 'T1-RJC',
     Role: 'AllRounder',
     RoleLogo: 'https://www.vectorstock.com/royalty-free-vector/cricket-bat-and-ball-vector-1645967',
     Tournament: 'IPL 2023',
@@ -82,7 +83,7 @@ const dummyData = [
   {
     PCNumber: 'PC00005',
     PlayerCounterName: 'Shivam Dube',
-    PCSymbol: 'SDU',
+    PcCode: 'T1-SDC',
     RoleLogo: 'https://www.vectorstock.com/royalty-free-vector/cricket-bat-and-ball-vector-1645967',
     Role: 'AllRounder',
     Tournament: 'IPL 2023',
@@ -95,7 +96,7 @@ const dummyData = [
   {
     PCNumber: 'PC00006',
     PlayerCounterName: 'Kuldeep Yadav',
-    PCSymbol: 'KYA',
+    PcCode: 'T1-KYC',
     Role: 'Bowler',
     RoleLogo: 'https://www.vecteezy.com/free-vector/cricket-ball',
     Tournament: 'IPL 2023',
@@ -108,26 +109,29 @@ const dummyData = [
   {
     PCNumber: 'PC00007',
     PlayerCounterName: 'Hardik Pandya',
-    PCSymbol: 'HPA',
+    PcCode: 'T1-HPC',
     Game: 'cricket',
     Status: 'WIP',
   },
   {
     PCNumber: 'PC00008',
     PlayerCounterName: 'KL Rahul',
-    PCSymbol: 'KLR',
+    PcCode: 'T1-KRC',
     Game: 'football',
     Status: 'WIP',
   },
 ];
-export default function Home() {
+export default function PlayerCounter() {
+
+  const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [newData, setNewData] = useState(dummyData);
-  const [rowsPerPage, setRowsPerPage] = useState(1050100);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [isLoading, setLoading] = useState(false);
   const [game, setGame] = useState('');
   const [year, setYear] = useState('');
   const [team, setTeam] = useState('');
+  const [order, setOrder] = useState('ASC');
 
   const handleGame = (event) => {
     setGame(() => event.target.value);
@@ -148,7 +152,6 @@ export default function Home() {
   };
 
   const cardNumber = (para) => {
-    console.log('para', para);
     let newString = '';
     if (para) {
       for (let i = 0; i < para.length; i += 1) {
@@ -162,26 +165,45 @@ export default function Home() {
     }
   };
 
+  const handleCreatePlayer = () => {
+    navigate(`/dashboard/player-counter/player-counter-creation`);
+  };
+
+  const sorting = (col) => {
+    if (order === 'ASC') {
+      const sorted = [...newData].sort((a, b) => (a[col].toLowerCase() > b[col].toLowerCase() ? 1 : -1));
+
+      setNewData(sorted);
+      setOrder('DSC');
+    }
+    if (order === 'DSC') {
+      const sorted = [...newData].sort((a, b) => (a[col].toLowerCase() < b[col].toLowerCase() ? 1 : -1));
+
+      setNewData(sorted);
+      setOrder('ASC');
+    }
+  };
+
   return (
     <>
       {isLoading ? (
         <Loader />
       ) : (
         <Paper elevation={5}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', textAlign: 'center', justifyContent: 'space-between' }}>
+            <span style={{ display: 'flex' }}>
               <ChevronRightIcon /> Player Counter
             </span>
-            <Box align="right" style={{ display: 'flex', marginLeft: '12%' }}>
-              <SortIcon style={{ marginTop: '6%' }} />
+            <Typography align="right" style={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
+              <SortIcon style={{ marginTop: '3%' }} />
               <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
-                <InputLabel id="demo-simple-select-standard-label">Game</InputLabel>
+                <InputLabel id="demo-simple-select-standard-label">Tournament</InputLabel>
                 <Select value={game} onChange={handleGame} label="Game">
                   <MenuItem value="">
                     <em>None</em>
                   </MenuItem>
                   <MenuItem value="cricket">Cricket</MenuItem>
-                  <MenuItem value="football">FootBall</MenuItem>
+                  <MenuItem value="football">Football</MenuItem>
                 </Select>
               </FormControl>
               <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
@@ -195,37 +217,58 @@ export default function Home() {
                   <MenuItem value="RJA">RJA</MenuItem>
                 </Select>
               </FormControl>
-              <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
-                <InputLabel id="demo-simple-select-standard-label">Year</InputLabel>
-                <Select value={year} onChange={handleYear} label="Year">
-                  <MenuItem value="">
-                    <em>None</em>
-                  </MenuItem>
-                  <MenuItem value={2022}>2022</MenuItem>
-                  <MenuItem value={2021}>2021</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-            <Button variant="contained" color="primary" align="right" onClick={() => console.log('Updated')}>
-              Create New Player counter
-            </Button>
+
+              {/* <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+              <InputLabel id="demo-simple-select-standard-label">Year</InputLabel>
+              <Select value={year} onChange={handleYear} label="Year">
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                <MenuItem value={2022}>2022</MenuItem>
+                <MenuItem value={2021}>2021</MenuItem>
+              </Select>
+            </FormControl> */}
+
+              <Button variant="contained" color="primary" onClick={handleCreatePlayer} style={{ width: '100%' }}>
+                Create New Player counter
+              </Button>
+            </Typography>
           </div>
           <TableContainer>
             <Table stickyHeader aria-label="simple table">
               <TableHead>
                 <TableRow>
-                  <TableCell component="th" scope="row">
+                  <TableCell align="center" onClick={() => sorting('PCNumber')}>
                     PC Number
                   </TableCell>
-                  <TableCell align="right">Player Counter Name</TableCell>
-                  <TableCell align="right">PC Symbol</TableCell>
-                  <TableCell align="right">Role</TableCell>
-                  <TableCell align="right">Tournament</TableCell>
-                  <TableCell align="right">Team</TableCell>
-                  <TableCell align="right">Total Supply</TableCell>
-                  <TableCell align="right">Status</TableCell>
-                  <TableCell align="right">Smart Contract Address</TableCell>
-                  <TableCell align="right"> Action </TableCell>
+                  <TableCell align="center" onClick={() => sorting('PlayerCounterName')}>
+                    Player Counter Name
+                  </TableCell>
+                  <TableCell align="center" onClick={() => sorting('PcCode')}>
+                    PC Code
+                  </TableCell>
+                  <TableCell align="center" onClick={() => sorting('Role')}>
+                    Role
+                  </TableCell>
+                  <TableCell align="center" onClick={() => sorting('Tournament')}>
+                    Tournament
+                  </TableCell>
+                  <TableCell align="center" onClick={() => sorting('Team')}>
+                    Team
+                  </TableCell>
+                  <TableCell align="center" onClick={() => sorting('TotalSupply')}>
+                    Total Supply
+                  </TableCell>
+                  <TableCell align="center" onClick={() => sorting('Status')}>
+                    Status
+                  </TableCell>
+                  <TableCell align="center" onClick={() => sorting('Game')}>
+                    Smart Contract Address
+                  </TableCell>
+                  <TableCell align="center" onClick={() => sorting('PCNumber')}>
+                    {' '}
+                    Action{' '}
+                  </TableCell>
                 </TableRow>
               </TableHead>
               {!newData || newData.length === 0 ? (
@@ -247,35 +290,17 @@ export default function Home() {
                     })
                     .map((row) => (
                       <TableRow key={row?.PCNumber}>
-                        <TableCell>{row?.PCNumber}</TableCell>
-                        <TableCell>{row?.PlayerCounterName}</TableCell>
-                        <TableCell>{row?.PCSymbol}</TableCell>
-                        <TableCell style={{ display: 'flex' }}>
-                          <>
-                            <img src={row?.RoleLogo} alt="" />
-                            {row?.Role}
-                          </>
+                        <TableCell align="center">{row?.PCNumber}</TableCell>
+                        <TableCell align="center">{row?.PlayerCounterName}</TableCell>
+                        <TableCell align="center">{row?.PcCode}</TableCell>
+                        <TableCell align="center" style={{ display: 'flex' }}>
+                          {row?.Role}
                         </TableCell>
-                        <TableCell>{row?.Tournament}</TableCell>
-                        <TableCell>{row?.Team}</TableCell>
-                        <TableCell>{row?.TotalSupply}</TableCell>
-                        <TableCell>
-                          <>
-                            <div>{row?.Status}</div>
-                            {row?.Status === 'WIP' ? (
-                              <div
-                                style={{
-                                  border: '1px solid black',
-                                  height: '10px',
-                                  borderRadius: '5px',
-                                }}
-                              />
-                            ) : (
-                              <></>
-                            )}
-                          </>
-                        </TableCell>
-                        <TableCell>{cardNumber(row?.SmartContractAddress)}</TableCell>
+                        <TableCell align="center">{row?.Tournament}</TableCell>
+                        <TableCell align="center">{row?.Team}</TableCell>
+                        <TableCell align="center">{row?.TotalSupply}</TableCell>
+                        <TableCell align="center">{row?.Status}</TableCell>
+                        <TableCell align="center">{cardNumber(row?.SmartContractAddress)}</TableCell>
 
                         {row?.Status === 'WIP' ? (
                           <TableCell align="right" style={{ display: 'flex' }}>
@@ -300,7 +325,7 @@ export default function Home() {
             </Table>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={[1050100, 2100200, 3150300]}
+            rowsPerPageOptions={[5, 10, 100, 150]}
             component="div"
             count={newData?.length || 0}
             rowsPerPage={rowsPerPage}
