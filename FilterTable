@@ -16,6 +16,8 @@ import {
   Typography,
   Box,
 } from '@mui/material';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -25,6 +27,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import Loader from '../../components/loader/Loader';
+import { NavItems } from './NavItems';
 
 const dummyData = [
   {
@@ -37,7 +40,7 @@ const dummyData = [
     Team: 'RCB',
     TotalSupply: 1000,
     Status: 'Minted',
-    SmartContractAddress: '0xd9145C**',
+    SmartContractAddress: '02339145C123456',
     FormCompletion: '20',
     Game: 'cricket',
   },
@@ -52,7 +55,7 @@ const dummyData = [
     TotalSupply: 1000,
     Status: 'Minted',
     Game: 'cricket',
-    SmartContractAddress: '0xd9145C**',
+    SmartContractAddress: '0909145C123456',
   },
   {
     PCNumber: 'PC00003',
@@ -65,7 +68,7 @@ const dummyData = [
     TotalSupply: 1000,
     Status: 'Minted',
     Game: 'cricket',
-    SmartContractAddress: '0xd9145C**',
+    SmartContractAddress: '0459145C123456',
   },
   {
     PCNumber: 'PC00004',
@@ -78,7 +81,7 @@ const dummyData = [
     TotalSupply: 1000,
     Status: 'Minted',
     Game: 'cricket',
-    SmartContractAddress: '0xd9145C**',
+    SmartContractAddress: '0239145C123456',
   },
   {
     PCNumber: 'PC00005',
@@ -91,7 +94,7 @@ const dummyData = [
     TotalSupply: 1000,
     Status: 'Minted',
     Game: 'cricket',
-    SmartContractAddress: '0xd9145C**',
+    SmartContractAddress: '0329145C123456',
   },
   {
     PCNumber: 'PC00006',
@@ -104,7 +107,7 @@ const dummyData = [
     TotalSupply: 1000,
     Status: 'Minted',
     Game: 'football',
-    SmartContractAddress: '0xd9145C**',
+    SmartContractAddress: '0129145C123456',
   },
   {
     PCNumber: 'PC00007',
@@ -121,17 +124,44 @@ const dummyData = [
     Status: 'WIP',
   },
 ];
-export default function PlayerCounter() {
 
+const options = [
+  {
+    label: 'Cricket',
+    value: 'cricket',
+  },
+  {
+    label: 'Football',
+    value: 'football',
+  },
+];
+const teams = [
+  {
+    label: 'CSK',
+    value: 'CSK',
+  },
+  {
+    label: 'MI',
+    value: 'MI',
+  },
+  {
+    label: 'RCB',
+    value: 'RCB',
+  },
+];
+
+export default function PlayerCounter() {
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [newData, setNewData] = useState(dummyData);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [isLoading, setLoading] = useState(false);
   const [game, setGame] = useState('');
   const [year, setYear] = useState('');
   const [team, setTeam] = useState('');
   const [order, setOrder] = useState('ASC');
+  const [value, setValue] = useState(0);
+  const [searchedVal, setSearchedVal] = useState('');
 
   const handleGame = (event) => {
     setGame(() => event.target.value);
@@ -149,6 +179,10 @@ export default function PlayerCounter() {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
+  };
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
   };
 
   const cardNumber = (para) => {
@@ -186,35 +220,44 @@ export default function PlayerCounter() {
 
   return (
     <>
+      <NavItems />
       {isLoading ? (
         <Loader />
       ) : (
         <Paper elevation={5}>
           <div style={{ display: 'flex', alignItems: 'center', textAlign: 'center', justifyContent: 'space-between' }}>
             <span style={{ display: 'flex' }}>
-              <ChevronRightIcon /> Player Counter
+              <ChevronRightIcon /> <b> Player Counter</b> &nbsp; (
+              <i style={{ fontSize: '13px', textAlign: 'center', marginTop: '2px' }}>
+                &nbsp; *prices are in SPQ &nbsp;
+              </i>
+              )
             </span>
+            <TextField size="small" type="text" placeholder="Search" onChange={(e) => setSearchedVal(e.target.value)} />
+
             <Typography align="right" style={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
               <SortIcon style={{ marginTop: '3%' }} />
+
               <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
                 <InputLabel id="demo-simple-select-standard-label">Tournament</InputLabel>
                 <Select value={game} onChange={handleGame} label="Game">
                   <MenuItem value="">
-                    <em>None</em>
+                    <em>All</em>
                   </MenuItem>
-                  <MenuItem value="cricket">Cricket</MenuItem>
-                  <MenuItem value="football">Football</MenuItem>
+                  {options.map((option) => (
+                    <MenuItem value={option.value}>{option.label}</MenuItem>
+                  ))}
                 </Select>
               </FormControl>
               <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
                 <InputLabel id="demo-simple-select-standard-label">Team</InputLabel>
                 <Select value={team} onChange={handleTeam} label="Team">
                   <MenuItem value="">
-                    <em>None</em>
+                    <em>All</em>
                   </MenuItem>
-                  <MenuItem value="CSK">CSK</MenuItem>
-                  <MenuItem value="RCB">RCB</MenuItem>
-                  <MenuItem value="RJA">RJA</MenuItem>
+                  {teams.map((option) => (
+                    <MenuItem value={option.value}>{option.label}</MenuItem>
+                  ))}
                 </Select>
               </FormControl>
 
@@ -239,10 +282,10 @@ export default function PlayerCounter() {
               <TableHead>
                 <TableRow>
                   <TableCell align="center" onClick={() => sorting('PCNumber')}>
-                    PC Number
+                    PC #
                   </TableCell>
                   <TableCell align="center" onClick={() => sorting('PlayerCounterName')}>
-                    Player Counter Name
+                    PC Name
                   </TableCell>
                   <TableCell align="center" onClick={() => sorting('PcCode')}>
                     PC Code
@@ -263,11 +306,10 @@ export default function PlayerCounter() {
                     Status
                   </TableCell>
                   <TableCell align="center" onClick={() => sorting('Game')}>
-                    Smart Contract Address
+                    Smart Contract #
                   </TableCell>
                   <TableCell align="center" onClick={() => sorting('PCNumber')}>
-                    {' '}
-                    Action{' '}
+                    Action
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -288,6 +330,12 @@ export default function PlayerCounter() {
                       }
                       return player;
                     })
+                    .filter(
+                      (row) =>
+                        !searchedVal.length ||
+                        row?.PlayerCounterName.toString().toLowerCase().includes(searchedVal.toString().toLowerCase())
+                    )
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => (
                       <TableRow key={row?.PCNumber}>
                         <TableCell align="center">{row?.PCNumber}</TableCell>
@@ -325,7 +373,7 @@ export default function PlayerCounter() {
             </Table>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 100, 150]}
+            rowsPerPageOptions={[10, 100, 150]}
             component="div"
             count={newData?.length || 0}
             rowsPerPage={rowsPerPage}
